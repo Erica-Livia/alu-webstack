@@ -19,7 +19,7 @@ else
     subdomains=("$subdomain")
 fi
 for subdomain in "${subdomains[@]}"; do 
-    record="$dig "subdomain.$domain" | grep -A1 "ANSWER SECTION:" | awk 'NR==2')"
+    record="$(dig "$subdomain.$domain" | grep -A1 "ANSWER SECTION:" |awk 'NR==2')"
     record_type=$(get_record_type "$record")
     destination=$(get_destination "$record")
 
