@@ -19,9 +19,8 @@ else
     subdomains=("$subdomain")
 fi
 for subdomain in "${subdomains[@]}"; do 
-    record="$(dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:')"
-    record_type=$(get_record_type "$record")
-    destination=$(get_destination "$record")
+    record_type="$(dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $4}')"
+    destination=$(dig +short "$subdomain.$domain" | awk '{print $1}')
 
     echo "The subdomain $subdomain is a $record_type record and points to $destination"
 done
