@@ -1,32 +1,18 @@
 #!/usr/bin/env bash
 #configuration of my domain zone so that the subdomain www points to my load-balancer IP (lb-01).
 
-function get_record_type {
-    local record_type=$(echo "$1" | awk '{print $4}')
-    echo "$record_type"
-}
 
-function get_destination {
-    local destination=$(echo "$1" | awk '{print $5}')
-    echo "$destination"
-}
-
-domain="$1"
-
-subdomain="$2"
-
-if [[ -z "$subdomain" ]]; then
-    subdomains=("www" "lb-01" "web-01" "web-02")
+if [ $# == 2 ]; then
+    domain=$1
+    subdomain=$2
+    SUB_DOMAINS=$subdomain
 else
-    subdomains=("$subdomain")
+    domain=$1
+    SUB_DOMAINS=("www" "lb-01" "web-01" "web-02")
 fi
 
-for subdomain in "${subdomains[@]}"; do
-    record="$(dig "$subdomain.$domain" | grep -A1 "ANSWER SECTION:" |awk 'NR==2')"
-
-    record_type=$(get_record_type "$record")
-
-    destination=$(get_destination "$record")
-
-    echo "The subdomain $subdomain is a $record_type record and points to $destination"
+for sub in ${SUB_DOMAINS[@]}; do
+    record_type="$(dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $4}')"
+    destination=$(dig +short "$sub.$domain" | awk '{print $1}')
+    echo "The subdomain $sub is a $record_type record and points to $destination"
 done
