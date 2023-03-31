@@ -49,3 +49,5 @@ backend web-backend
     balance roundrobin
     server 5420-web-01 107.20.75.201:80 check
     server 5420-web-02 54.235.37.236:80 check
+	backend letsencrypt-backend
+	server letsencrypt 127.0.0.1:54321
