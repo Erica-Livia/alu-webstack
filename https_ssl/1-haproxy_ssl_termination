@@ -32,12 +32,20 @@ defaults
         errorfile 502 /etc/haproxy/errors/502.http
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
-frontend www.ericalivia.tech
-    bind *:80
+
+frontend www-http
+	bind *:80
+	mode http
+	default_backend web-backend
+frontend www-https
     bind *:443 ssl crt /etc/ssl/certs/ericalivia.tech.pem
-    default_backend web_servers
-backend web_servers
-        mode http
-        balance roundrobin
-        server 5420-web-01 107.20.75.201:80 check
-        server 5420-web-02 54.235.37.236:80 check
+	http-request set-header X-Forwarded-Proto https
+    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+    use_backend letsencrypt-backend if letsencrypt-acl
+    default_backend web-backend
+
+backend web-backend
+    redirect scheme https unless { ssl_fc }
+    balance roundrobin
+    server 5420-web-01 107.20.75.201:80 check
+    server 5420-web-02 54.235.37.236:80 check
