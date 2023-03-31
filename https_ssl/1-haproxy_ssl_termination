@@ -34,7 +34,7 @@ defaults
         errorfile 504 /etc/haproxy/errors/504.http
 frontend www.ericalivia.tech
     bind *:80
-    bind *:443 ssl crt /etc/ssl/certs/www.ericalivia.tech.pem
+    bind *:443 ssl crt /etc/ssl/certs/ericalivia.tech.pem
     default_backend web_servers
 backend web_servers
         mode http
