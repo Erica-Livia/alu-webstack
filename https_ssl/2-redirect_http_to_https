@@ -38,7 +38,7 @@ backend my_servers
         server 5420-web-02 54.235.37.236:80 check
 frontend haproxy_inbound
         bind *:80
-a       bind *:443 ssl crt /etc/haproxy/ssl-certs/ericalivia.tech.pem
+        bind *:443 ssl crt /etc/haproxy/ssl-certs/www.ericalivia.tech.pem
         default_backend my_servers
         mode http
          # Let the letsencrypt backend handle requests to the
