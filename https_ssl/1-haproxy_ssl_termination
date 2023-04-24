@@ -32,23 +32,18 @@ defaults
         errorfile 502 /etc/haproxy/errors/502.http
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
-
-frontend www-http
-	bind *:80
-	mode http
-	default_backend web-backend
-frontend www-https
-    bind *:443 ssl crt /etc/haproxy/ericalivia.tech.pem
-	http-request set-header X-Forwarded-Proto https
-    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
-    use_backend letsencrypt-backend if letsencrypt-acl
-    default_backend web-backend
-
-backend web-backend
-    redirect scheme https unless { ssl_fc }
-    balance roundrobin
-    server 5420-web-01 107.20.75.201:80 check
-    server 5420-web-02 54.235.37.236:80 check
-
-backend letsencrypt-backend
-	server letsencrypt 127.0.0.1:9785
+backend my_servers
+        balance roundrobin
+        server 5420-web-01 107.20.75.201:80 check
+        server 5420-web-02 54.235.37.236:80 check
+frontend haproxy_inbound
+        bind *:80
+a       bind *:443 ssl crt /etc/haproxy/ssl-certs/cert.pem
+        default_backend my_servers
+        mode http
+         # Let the letsencrypt backend handle requests to the
+         # acme-challenge url
+        acl letsencrypt-req path_beg /.well-known/acme-challenge/
+        use_backend letsencrypt if letsencrypt-req
+backend letsencrypt
+   server letsencrypt 127.0.0.1:9785
